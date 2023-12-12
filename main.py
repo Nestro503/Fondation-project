@@ -6,6 +6,7 @@ ARUCO_DICT = {
     "DICT_ARUCO_ORIGINAL": cv2.aruco.DICT_ARUCO_ORIGINAL,
 }
 
+
 #youhou ca marche
 def aruco_display(corners, ids, rejected, image):
     if len(corners) > 0:
@@ -32,12 +33,36 @@ def aruco_display(corners, ids, rejected, image):
             cv2.putText(image, "ID: {}".format(markerID), (topLeft[0], topLeft[1] - 10), cv2.FONT_HERSHEY_SIMPLEX,
                         0.5, (0, 255, 0), 2)
 
-            # Display coordinates on the image
-            cv2.putText(image, "({},{})".format(cX, cY), (topLeft[0], topLeft[1] - 30), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5, (0, 255, 0), 2)
+            # Map ArUco marker coordinates to game card coordinates
+            if markerID == 0:
+                mapped_coordinates = (0, 0)
+            elif markerID == 1:
+                mapped_coordinates = (1000, 0)
+            elif markerID == 2:
+                mapped_coordinates = (1000, 1000)
+            elif markerID == 3:
+                mapped_coordinates = (0, 1000)
+            else:
+                mapped_coordinates = (cX, cY)
 
-            # Print coordinates in the console
-            print("[Inference] ArUco marker ID: {}, Coordinates: ({}, {})".format(markerID, cX, cY))
+            # Display mapped coordinates on the image
+            cv2.putText(image, "Mapped: ({},{})".format(mapped_coordinates[0], mapped_coordinates[1]),
+                        (topLeft[0], topLeft[1] - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+            # Print mapped coordinates in the console
+            print("[Inference] ArUco marker ID: {}, Mapped Coordinates: {}".format(markerID, mapped_coordinates))
+
+            # Check for ArUco marker with ID 137
+            if markerID == 137 and 0 < cX < 1000 and 0 < cY < 1000:
+                # Calculate relative coordinates within the rectangle
+                relative_coordinates = (cX - topLeft[0], cY - topLeft[1])
+                print(topLeft[0], topLeft[1])
+
+                # Display coordinates of the ArUco marker with ID 137
+                cv2.putText(image, "ID 137: ({},{})".format(relative_coordinates[0], relative_coordinates[1]),
+                            (topLeft[0], topLeft[1] - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                print("[Inference] ArUco marker ID 137 found at Coordinates: ({},{})".format(relative_coordinates[0],
+                                                                                             relative_coordinates[1]))
 
     return image
 
@@ -52,6 +77,8 @@ cap = cv2.VideoCapture(0)
 
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+
+
 
 while cap.isOpened():
 
