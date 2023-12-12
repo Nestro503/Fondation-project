@@ -26,7 +26,7 @@ ARUCO_DICT = {
     "DICT_APRILTAG_36h11": cv2.aruco.DICT_APRILTAG_36h11
 }
 
-
+#youhou ca marche
 def aruco_display(corners, ids, rejected, image):
     if len(corners) > 0:
 
