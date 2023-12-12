@@ -7,8 +7,10 @@ ARUCO_DICT = {
 }
 
 
-#youhou ca marche
+
+# youhou ca marche
 def aruco_display(corners, ids, rejected, image):
+
     if len(corners) > 0:
         ids = ids.flatten()
 
@@ -73,11 +75,18 @@ arucoDict = cv2.aruco.getPredefinedDictionary(ARUCO_DICT[aruco_type])
 
 arucoParams = cv2.aruco.DetectorParameters()
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
+
+
+
+def replace_color_image(image, mask, replacement_color):
+    result = image.copy()
+    result[mask > 0] = replacement_color
+    return result
 
 
 while cap.isOpened():
@@ -85,6 +94,17 @@ while cap.isOpened():
     ret, img = cap.read()
 
     h, w, _ = img.shape
+
+    HSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    lower_yellow = np.array([20, 90, 100])
+    upper_yellow = np.array([50, 255, 255])
+
+    mask_yellow = cv2.inRange(HSV, lower_yellow, upper_yellow)
+
+    replacement_color_green = [0, 255, 0]
+
+    img = replace_color_image(img, mask_yellow, replacement_color_green)
 
     width = 1000
     height = int(width * (h / w))
