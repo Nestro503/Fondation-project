@@ -75,7 +75,7 @@ arucoDict = cv2.aruco.getPredefinedDictionary(ARUCO_DICT[aruco_type])
 
 arucoParams = cv2.aruco.DetectorParameters()
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)       #choix de la source de la video (0 : camera PC) et (1 : IvCam)
 
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
@@ -114,11 +114,14 @@ while cap.isOpened():
 
     detected_markers = aruco_display(corners, ids, rejected, img)
 
+    # Display the resulting frame
     cv2.imshow("Image", detected_markers)
 
+    # Check if the user pressed 'q' or if the window was closed
     key = cv2.waitKey(1) & 0xFF
     if key == ord("q"):
         break
 
+# When everything is done, release the capture
 cv2.destroyAllWindows()
 cap.release()
