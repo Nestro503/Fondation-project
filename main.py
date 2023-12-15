@@ -1,3 +1,4 @@
+
 import numpy as np
 import time
 import cv2
@@ -250,8 +251,10 @@ while cap.isOpened():
     cv2.imshow("Image", detected_markers)
 
     key = cv2.waitKey(1) & 0xFF
-    if key == ord("q"):
+    if key == ord("q") or key == 27:
         break
 
 cv2.destroyAllWindows()
 cap.release()
+
+
