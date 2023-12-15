@@ -1,4 +1,3 @@
-
 import numpy as np
 import time
 import cv2
@@ -7,16 +6,15 @@ ARUCO_DICT = {
     "DICT_ARUCO_ORIGINAL": cv2.aruco.DICT_ARUCO_ORIGINAL,
 }
 
-
-#Constantes
-DISTANCE_COIN_ARUCO_X_CM = 294
-DISTANCE_COIN_Y_CM = 194
-
-#LONGEUR_CALIB_CM = 9
+# Constantes
+DISTANCE_COIN_ARUCO_X_MM = 2940
+DISTANCE_COIN_Y_MM = 1940
 
 
+# LONGEUR_CALIB_MM = 90
 
-# Function to calculate cm_nbr_pixel and pixel_nbr_cm
+
+# Function to calculate mm_nbr_pixel and pixel_nbr_mm
 def calculate_pixel_distance(corners, ids):
     if len(corners) > 1:
         index_aruco_0 = np.where(ids == 0)[0]
@@ -32,13 +30,13 @@ def calculate_pixel_distance(corners, ids):
 
         # Check if marker 0 is detected
         if index_aruco_0.size > 0:
-            x_aruco_0 = corners[index_aruco_0[0]][0][0][0] # Use the top-left corner
+            x_aruco_0 = corners[index_aruco_0[0]][0][0][0]  # Use the top-left corner
             y_aruco_0 = corners[index_aruco_0[0]][0][0][1]
             print("x_aruco_0:{}, y_aruco_0:{}".format(x_aruco_0, y_aruco_0))
 
         # Check if marker 1 is detected
         if index_aruco_1.size > 0:
-            x_aruco_1 = corners[index_aruco_1[0]][0][1][0] # Use the top-right corner
+            x_aruco_1 = corners[index_aruco_1[0]][0][1][0]  # Use the top-right corner
             y_aruco_1 = corners[index_aruco_1[0]][0][1][1]
             print("x_aruco_1:{}, y_aruco_1:{}".format(x_aruco_1, y_aruco_1))
 
@@ -59,28 +57,30 @@ def calculate_pixel_distance(corners, ids):
 
         # Check if pixel_distance_x is zero to avoid division by zero
         if pixel_distance_x == 0:
-            print("[Inference] Warning: pixel_distance_x is zero. Cannot calculate cm_nbr_pixel_x and pixel_nbr_cm_x.")
+            print("[Inference] Warning: pixel_distance_x is zero. Cannot calculate mm_nbr_pixel_x and pixel_nbr_mm_x.")
             return None, None, None, None, None
 
-        # Calculate cm_nbr_pixel and pixel_nbr_cm for both x and y directions
-        cm_nbr_pixel_x = float(pixel_distance_x) / DISTANCE_COIN_ARUCO_X_CM
-        pixel_nbr_cm_x = float(DISTANCE_COIN_ARUCO_X_CM) / pixel_distance_x
+        # Calculate mm_nbr_pixel and pixel_nbr_mm for both x and y directions
+        mm_nbr_pixel_x = float(pixel_distance_x) / DISTANCE_COIN_ARUCO_X_MM
+        pixel_nbr_mm_x = float(DISTANCE_COIN_ARUCO_X_MM) / pixel_distance_x
 
-        print("[Inference] pixeldistance: {}, cm_nbr_pixel_x: {}, pixel_nbr_cm_x: {}".format(pixel_distance_x, cm_nbr_pixel_x, pixel_nbr_cm_x))
+        print("[Inference] pixeldistance: {}, mm_nbr_pixel_x: {}, pixel_nbr_mm_x: {}".format(pixel_distance_x,
+                                                                                             mm_nbr_pixel_x,
+                                                                                             pixel_nbr_mm_x))
 
-        return pixel_distance_x, cm_nbr_pixel_x, pixel_nbr_cm_x, x_aruco_0, y_aruco_0, x_aruco_1, y_aruco_1, x_aruco_2, y_aruco_2, x_aruco_3, y_aruco_3
+        return pixel_distance_x, mm_nbr_pixel_x, pixel_nbr_mm_x, x_aruco_0, y_aruco_0, x_aruco_1, y_aruco_1, x_aruco_2, y_aruco_2, x_aruco_3, y_aruco_3
 
     return None, None, None, None, None, None, None, None, None, None
-
 
 
 def aruco_display(corners, ids, rejected, image):
     if len(corners) > 0:
         ids = ids.flatten()
 
-        pixel_distance_x, cm_nbr_pixel, pixel_nbr_cm, x_aruco_0, y_aruco_0, x_aruco_1, y_aruco_1, x_aruco_2, y_aruco_2, x_aruco_3, y_aruco_3 = calculate_pixel_distance(corners, ids)
+        pixel_distance_x, mm_nbr_pixel, pixel_nbr_mm, x_aruco_0, y_aruco_0, x_aruco_1, y_aruco_1, x_aruco_2, y_aruco_2, x_aruco_3, y_aruco_3 = calculate_pixel_distance(
+            corners, ids)
 
-        if pixel_distance_x is not None and cm_nbr_pixel is not None:
+        if pixel_distance_x is not None and mm_nbr_pixel is not None:
             for (markerCorner, markerID) in zip(corners, ids):
                 corners = markerCorner.reshape((4, 2))
 
@@ -116,72 +116,141 @@ def aruco_display(corners, ids, rejected, image):
                     mapped_coordinates = (cX, cY)
                     cv2.circle(image, (cX, cY), 4, (0, 0, 255), -1)
 
-                if cm_nbr_pixel is not None:
-
+                if mm_nbr_pixel is not None:
+                    ####################Dessins calib couleurs !!
                     # Dessin calib blanc
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 9 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 4,
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 90 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 4,
                                (255, 255, 255), -1)  # -1 pour remplir le cercle
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 9 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 2,
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 90 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 2,
                                (0, 0, 0), -1)
-
-
                     # Dessin calib jaune
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 18 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 4,
-                               (255, 255, 255), -1)  # -1 pour remplir le cercle
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 180 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 4,
+                               (255, 255, 255), -1) # -1 pour remplir le cercle
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 18 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 2,
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 180 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 2,
                                (0, 0, 0), -1)
-
                     # Dessin calib cyan
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 27 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 4,
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 270 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 4,
                                (255, 255, 255), -1)  # -1 pour remplir le cercle
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 27 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 2,
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 270 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 2,
                                (0, 0, 0), -1)
-
                     # Dessin calib vert
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 36 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 4,
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 360 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 4,
                                (255, 255, 255), -1)  # -1 pour remplir le cercle
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 36 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 2,
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 360 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 2,
                                (0, 0, 0), -1)
-
                     # Dessin calib magenta
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 45 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 4,
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 450 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 4,
                                (255, 255, 255), -1)  # -1 pour remplir le cercle
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 45 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 2,
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 450 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 2,
                                (0, 0, 0), -1)
-
                     # Dessin calib rouge
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 54 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 4,
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 540 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 4,
                                (255, 255, 255), -1)  # -1 pour remplir le cercle
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 54 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 2,
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 540 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 2,
                                (0, 0, 0), -1)
-
                     # Dessin calib bleu
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 63 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 4,
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 630 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 4,
                                (255, 255, 255), -1)  # -1 pour remplir le cercle
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 63 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 2,
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 630 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 2,
                                (0, 0, 0), -1)
-
                     # Dessin calib noir
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 72 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 4,
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 720 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 4,
                                (255, 255, 255), -1)  # -1 pour remplir le cercle
                     cv2.circle(image, (
-                    int(x_aruco_3 + 5 * cm_nbr_pixel + 72 * cm_nbr_pixel), int(y_aruco_3 + 2 * cm_nbr_pixel)), 2,
+                        int(x_aruco_3 + 50 * mm_nbr_pixel + 720 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 2,
                                (0, 0, 0), -1)
+
+                    ####################Dessins calib blancs !!
+                    # Dessin calib blanc 0
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 90 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 4,
+                               (255, 255, 255), -1)  # -1 pour remplir le cercle
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 90 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 2,
+                               (0, 0, 0), -1)
+                    # Dessin calib blanc 1
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 180 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 4,
+                               (255, 255, 255), -1)  # -1 pour remplir le cercle
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 180 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 2,
+                               (0, 0, 0), -1)
+                    # Dessin calib blanc 2
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 270 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 4,
+                               (255, 255, 255), -1)  # -1 pour remplir le cercle
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 270 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 2,
+                               (0, 0, 0), -1)
+                    # Dessin calib blanc 3
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 360 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 4,
+                               (255, 255, 255), -1)  # -1 pour remplir le cercle
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 360 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 2,
+                               (0, 0, 0), -1)
+                    # Dessin calib blanc 4
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 450 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 4,
+                               (255, 255, 255), -1)  # -1 pour remplir le cercle
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 450 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 2,
+                               (0, 0, 0), -1)
+                    # Dessin calib blanc 5
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 540 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 4,
+                               (255, 255, 255), -1)  # -1 pour remplir le cercle
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 540 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 2,
+                               (0, 0, 0), -1)
+                    # Dessin calib blanc 6
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 630 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 4,
+                               (255, 255, 255), -1)  # -1 pour remplir le cercle
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 630 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 2,
+                               (0, 0, 0), -1)
+                    # Dessin calib blanc 7
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 720 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 4,
+                               (255, 255, 255), -1)  # -1 pour remplir le cercle
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 720 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 2,
+                               (0, 0, 0), -1)
+                    # Dessin calib blanc 8
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 810 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 4,
+                               (255, 255, 255), -1)  # -1 pour remplir le cercle
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 810 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 2,
+                               (0, 0, 0), -1)
+                    # Dessin calib blanc 9
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 900 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 4,
+                               (255, 255, 255), -1)  # -1 pour remplir le cercle
+                    cv2.circle(image, (
+                        int(x_aruco_1 - 50 * mm_nbr_pixel - 900 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 2,
+                               (0, 0, 0), -1)
+
+
+
+
+
 
 
 
@@ -189,8 +258,6 @@ def aruco_display(corners, ids, rejected, image):
 
                 cv2.putText(image, "ID: {}".format(markerID), (topLeft[0], topLeft[1] - 10), cv2.FONT_HERSHEY_SIMPLEX,
                             0.5, (0, 255, 0), 2)
-
-
 
                 # Display mapped coordinates on the image
                 cv2.putText(image, "Mapped: ({},{})".format(mapped_coordinates[0], mapped_coordinates[1]),
@@ -214,8 +281,6 @@ cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
 
-
-
 def replace_color_image(image, mask, replacement_color):
     result = image.copy()
     result[mask > 0] = replacement_color
@@ -228,16 +293,16 @@ while cap.isOpened():
 
     h, w, _ = img.shape
 
-    #HSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    # HSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    #lower_yellow = np.array([20, 90, 100])
-    #upper_yellow = np.array([50, 255, 255])
+    # lower_yellow = np.array([20, 90, 100])
+    # upper_yellow = np.array([50, 255, 255])
 
-    #mask_yellow = cv2.inRange(HSV, lower_yellow, upper_yellow)
+    # mask_yellow = cv2.inRange(HSV, lower_yellow, upper_yellow)
 
-    #replacement_color_green = [0, 255, 0]
+    # replacement_color_green = [0, 255, 0]
 
-    #img = replace_color_image(img, mask_yellow, replacement_color_green)
+    # img = replace_color_image(img, mask_yellow, replacement_color_green)
 
     width = 1000
     height = int(width * (h / w))
@@ -256,5 +321,3 @@ while cap.isOpened():
 
 cv2.destroyAllWindows()
 cap.release()
-
-
