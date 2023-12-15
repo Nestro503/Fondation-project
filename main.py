@@ -64,9 +64,10 @@ def calculate_pixel_distance(corners, ids):
         mm_nbr_pixel_x = float(pixel_distance_x) / DISTANCE_COIN_ARUCO_X_MM
         pixel_nbr_mm_x = float(DISTANCE_COIN_ARUCO_X_MM) / pixel_distance_x
 
-        print("[Inference] pixeldistance: {}, mm_nbr_pixel_x: {}, pixel_nbr_mm_x: {}".format(pixel_distance_x,
-                                                                                             mm_nbr_pixel_x,
-                                                                                             pixel_nbr_mm_x))
+        print(
+            "[Inference] pixeldistance: {:.2f}, mm_nbr_pixel_x: {:.2f}, pixel_nbr_mm_x: {:.2f}".format(pixel_distance_x,
+                                                                                                       mm_nbr_pixel_x,
+                                                                                                       pixel_nbr_mm_x))
 
         return pixel_distance_x, mm_nbr_pixel_x, pixel_nbr_mm_x, x_aruco_0, y_aruco_0, x_aruco_1, y_aruco_1, x_aruco_2, y_aruco_2, x_aruco_3, y_aruco_3
 
