@@ -11,7 +11,6 @@ DISTANCE_COIN_ARUCO_X_MM = 2940
 DISTANCE_COIN_Y_MM = 1940
 
 
-# LONGEUR_CALIB_MM = 90
 
 
 # Function to calculate mm_nbr_pixel and pixel_nbr_mm
@@ -69,12 +68,11 @@ def calculate_pixel_distance(corners, ids):
                                                                                                        mm_nbr_pixel_x,
                                                                                                        pixel_nbr_mm_x))
 
-        return pixel_distance_x, mm_nbr_pixel_x, pixel_nbr_mm_x, x_aruco_0, y_aruco_0, x_aruco_1, y_aruco_1, x_aruco_2, y_aruco_2, x_aruco_3, y_aruco_3
-
-    return None, None, None, None, None, None, None, None, None, None
+    return pixel_distance_x, mm_nbr_pixel_x, pixel_nbr_mm_x, x_aruco_0, y_aruco_0, x_aruco_1, y_aruco_1, x_aruco_2, y_aruco_2, x_aruco_3, y_aruco_3
 
 
-def aruco_display(corners, ids, rejected, image):
+# Function to display ArUco markers and calibration circles
+def aruco_display(corners, ids, image):
     if len(corners) > 0:
         ids = ids.flatten()
 
@@ -119,20 +117,14 @@ def aruco_display(corners, ids, rejected, image):
 
                 if mm_nbr_pixel is not None:
                     ####################Dessins calib couleurs !!
-                    # Dessin calib blanc
-                    cv2.circle(image, (
-                        int(x_aruco_3 + 50 * mm_nbr_pixel + 90 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 4,
-                               (255, 255, 255), -1)  # -1 pour remplir le cercle
-                    cv2.circle(image, (
-                        int(x_aruco_3 + 50 * mm_nbr_pixel + 90 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 2,
-                               (0, 0, 0), -1)
+                    '''
                     # Dessin calib jaune
                     cv2.circle(image, (
                         int(x_aruco_3 + 50 * mm_nbr_pixel + 180 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 4,
-                               (255, 255, 255), -1) # -1 pour remplir le cercle
+                               (255, 255, 255), -1)  # -1 pour remplir le cercle
                     cv2.circle(image, (
                         int(x_aruco_3 + 50 * mm_nbr_pixel + 180 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 2,
-                               (0, 0, 0), -1)
+                               (0, 0, 0), -1) 
                     # Dessin calib cyan
                     cv2.circle(image, (
                         int(x_aruco_3 + 50 * mm_nbr_pixel + 270 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 4,
@@ -168,13 +160,7 @@ def aruco_display(corners, ids, rejected, image):
                     cv2.circle(image, (
                         int(x_aruco_3 + 50 * mm_nbr_pixel + 630 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 2,
                                (0, 0, 0), -1)
-                    # Dessin calib noir
-                    cv2.circle(image, (
-                        int(x_aruco_3 + 50 * mm_nbr_pixel + 720 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 4,
-                               (255, 255, 255), -1)  # -1 pour remplir le cercle
-                    cv2.circle(image, (
-                        int(x_aruco_3 + 50 * mm_nbr_pixel + 720 * mm_nbr_pixel), int(y_aruco_3 + 10 * mm_nbr_pixel)), 2,
-                               (0, 0, 0), -1)
+
 
                     ####################Dessins calib blancs !!
                     # Dessin calib blanc 0
@@ -248,14 +234,7 @@ def aruco_display(corners, ids, rejected, image):
                         int(x_aruco_1 - 50 * mm_nbr_pixel - 900 * mm_nbr_pixel), int(y_aruco_1 - 10 * mm_nbr_pixel)), 2,
                                (0, 0, 0), -1)
 
-
-
-
-
-
-
-
-
+                    '''
 
                 cv2.putText(image, "ID: {}".format(markerID), (topLeft[0], topLeft[1] - 10), cv2.FONT_HERSHEY_SIMPLEX,
                             0.5, (0, 255, 0), 2)
@@ -270,55 +249,139 @@ def aruco_display(corners, ids, rejected, image):
     return image
 
 
+
+
+
 aruco_type = "DICT_ARUCO_ORIGINAL"
 
 arucoDict = cv2.aruco.getPredefinedDictionary(ARUCO_DICT[aruco_type])
 
 arucoParams = cv2.aruco.DetectorParameters()
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture("model.jpg")
 
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
 
-def replace_color_image(image, mask, replacement_color):
-    result = image.copy()
-    result[mask > 0] = replacement_color
-    return result
 
-
-while cap.isOpened():
+while True:
 
     ret, img = cap.read()
 
+    # Vérifier si la lecture de l'image a réussi
+    if not ret:
+        time.sleep(0.5)  # Pause d'une demi-seconde
+        print("Reprise après pause.")
+        continue  # Continue à la prochaine itération de la boucle
+
     h, w, _ = img.shape
+    print("Lecture d'image réussie. Shape: {}".format((h, w)))
 
-    # HSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    # lower_yellow = np.array([20, 90, 100])
-    # upper_yellow = np.array([50, 255, 255])
-
-    # mask_yellow = cv2.inRange(HSV, lower_yellow, upper_yellow)
-
-    # replacement_color_green = [0, 255, 0]
-
-    # img = replace_color_image(img, mask_yellow, replacement_color_green)
 
     width = 1000
     height = int(width * (h / w))
     img = cv2.resize(img, (width, height), interpolation=cv2.INTER_CUBIC)
     detector = cv2.aruco.ArucoDetector(arucoDict, arucoParams)
     corners, ids, rejected = detector.detectMarkers(img)
+    detected_markers = aruco_display(corners, ids, img)
 
-    # Call the aruco_display function
-    detected_markers = aruco_display(corners, ids, rejected, img)
 
-    cv2.imshow("Image", detected_markers)
+    # Perform the conversion and print results
+    pixel_distance_x, mm_nbr_pixel_x, pixel_nbr_mm_x, x_aruco_0, y_aruco_0, x_aruco_1, y_aruco_1, x_aruco_2, y_aruco_2, x_aruco_3, y_aruco_3 = calculate_pixel_distance(
+        corners, ids)
+    if pixel_distance_x is not None and mm_nbr_pixel_x is not None:
+        print(
+            "[Inference] pixeldistance: {:.2f}, mm_nbr_pixel_x: {:.2f}, pixel_nbr_mm_x: {:.2f}".format(pixel_distance_x,
+                                                                                                       mm_nbr_pixel_x,
+                                                                                                       pixel_nbr_mm_x))
 
-    key = cv2.waitKey(1) & 0xFF
-    if key == ord("q") or key == 27:
-        break
 
-cv2.destroyAllWindows()
-cap.release()
+
+
+
+
+    # Coordonnées des pixels à vérifier
+    pixel_jaune = (
+        int(x_aruco_3 + 50 * mm_nbr_pixel_x + 180 * mm_nbr_pixel_x),
+        int(y_aruco_3 + 10 * mm_nbr_pixel_x)
+    )
+    # Obtenez la valeur BGR du pixel
+    bgr_pixel_jaune = img[pixel_jaune[1], pixel_jaune[0]]
+    # Dessinez un cercle avec la couleur du pixel
+    cv2.circle(img, (int(x_aruco_3 + 50 * mm_nbr_pixel_x + 180 * mm_nbr_pixel_x), int(y_aruco_3 + 70 * mm_nbr_pixel_x)),
+               10,
+               (int(bgr_pixel_jaune[0]), int(bgr_pixel_jaune[1]), int(bgr_pixel_jaune[2])), -1)
+
+    pixel_cyan = (
+        int(x_aruco_3 + 50 * mm_nbr_pixel_x + 270 * mm_nbr_pixel_x),
+        int(y_aruco_3 + 10 * mm_nbr_pixel_x)
+    )
+    # Obtenez la valeur BGR du pixel
+    bgr_pixel_cyan = img[pixel_cyan[1], pixel_cyan[0]]
+    cv2.circle(img, (int(x_aruco_3 + 50 * mm_nbr_pixel_x + 270 * mm_nbr_pixel_x), int(y_aruco_3 + 70 * mm_nbr_pixel_x)),
+               10,
+               (int(bgr_pixel_cyan[0]), int(bgr_pixel_cyan[1]), int(bgr_pixel_cyan[2])), -1)
+
+    pixel_vert = (
+        int(x_aruco_3 + 50 * mm_nbr_pixel_x + 360 * mm_nbr_pixel_x),
+        int(y_aruco_3 + 10 * mm_nbr_pixel_x)
+    )
+    # Obtenez la valeur BGR du pixel
+    bgr_pixel_vert = img[pixel_vert[1], pixel_vert[0]]
+    cv2.circle(img, (int(x_aruco_3 + 50 * mm_nbr_pixel_x + 360 * mm_nbr_pixel_x), int(y_aruco_3 + 70 * mm_nbr_pixel_x)),
+               10,
+               (int(bgr_pixel_vert[0]), int(bgr_pixel_vert[1]), int(bgr_pixel_vert[2])), -1)
+
+    pixel_magenta = (
+        int(x_aruco_3 + 50 * mm_nbr_pixel_x + 450 * mm_nbr_pixel_x),
+        int(y_aruco_3 + 10 * mm_nbr_pixel_x)
+    )
+    # Obtenez la valeur BGR du pixel
+    bgr_pixel_magenta = img[pixel_magenta[1], pixel_magenta[0]]
+    cv2.circle(img, (int(x_aruco_3 + 50 * mm_nbr_pixel_x + 450 * mm_nbr_pixel_x), int(y_aruco_3 + 70 * mm_nbr_pixel_x)),
+               10,
+               (int(bgr_pixel_magenta[0]), int(bgr_pixel_magenta[1]), int(bgr_pixel_magenta[2])), -1)
+
+    pixel_rouge = (
+        int(x_aruco_3 + 50 * mm_nbr_pixel_x + 540 * mm_nbr_pixel_x),
+        int(y_aruco_3 + 10 * mm_nbr_pixel_x)
+    )
+    # Obtenez la valeur BGR du pixel
+    bgr_pixel_rouge = img[pixel_rouge[1], pixel_rouge[0]]
+    cv2.circle(img, (int(x_aruco_3 + 50 * mm_nbr_pixel_x + 540 * mm_nbr_pixel_x), int(y_aruco_3 + 70 * mm_nbr_pixel_x)),
+               10,
+               (int(bgr_pixel_rouge[0]), int(bgr_pixel_rouge[1]), int(bgr_pixel_rouge[2])), -1)
+
+    pixel_bleu = (
+        int(x_aruco_3 + 50 * mm_nbr_pixel_x + 630 * mm_nbr_pixel_x),
+        int(y_aruco_3 + 10 * mm_nbr_pixel_x)
+    )
+    # Obtenez la valeur BGR du pixel
+    bgr_pixel_bleu = img[pixel_bleu[1], pixel_bleu[0]]
+    cv2.circle(img, (int(x_aruco_3 + 50 * mm_nbr_pixel_x + 630 * mm_nbr_pixel_x), int(y_aruco_3 + 70 * mm_nbr_pixel_x)),
+               10,
+               (int(bgr_pixel_bleu[0]), int(bgr_pixel_bleu[1]), int(bgr_pixel_bleu[2])), -1)
+
+    cv2.imshow("Original Image", detected_markers)
+
+
+
+    # Définir la plage de tolérance pour la couleur de référence
+    tolerance = 20
+    # Créer un masque pour la couleur de référence
+    lower_bound = np.array(bgr_pixel_jaune) - tolerance
+    upper_bound = np.array(bgr_pixel_jaune) + tolerance
+    mask = cv2.inRange(detected_markers, lower_bound, upper_bound)
+    # Remplacer la couleur de référence par du noir
+    detected_markers[mask > 0] = [0, 0, 0]
+
+    # Afficher l'image modifiée
+    cv2.imshow("Image avec couleur de référence remplacée par du noir", detected_markers)
+
+    cv2.waitKey(0)
+
+    cv2.destroyAllWindows()
+    cap.release()
+
